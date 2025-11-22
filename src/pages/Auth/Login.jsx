@@ -1,3 +1,176 @@
+import { useState } from "react";
+import AnimatedAuthTitle from "../../components/AnimatedAuthTitle";
+
 export default function Login() {
-  return <div>Login Page</div>;
+  const [userType, setUserType] = useState("iiest");
+  const [iiestCredentials, setIIESTCredentials] = useState({
+    roll: "",
+    password: "",
+  });
+  const [nonIIESTCredentials, setNonIIESTCredentials] = useState({
+    email: "",
+    password: "",
+  });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleChange = (event, type) => {
+    const { name, value } = event.target;
+    if (type === "iiest") {
+      setIIESTCredentials(prev => ({ ...prev, [name]: value }));
+    } else {
+      setNonIIESTCredentials(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSubmit = event => {
+    event.preventDefault();
+    if (userType === "iiest") {
+      alert("IIEST Login: " + JSON.stringify(iiestCredentials, null, 2));
+    } else {
+      alert("Non-IIEST Login: " + JSON.stringify(nonIIESTCredentials, null, 2));
+    }
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        width: "100vw",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#000",
+      }}
+    >
+      <div
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{
+          maxWidth: 400,
+          width: "100%",
+          padding: 32,
+          boxShadow: isHovered ? "0 12px 42px rgba(25,118,210,0.35)" : "0 4px 24px rgba(0,0,0,0.08)",
+          borderRadius: 12,
+          background: isHovered ? "linear-gradient(160deg, #1a1f2b 0%, #161616 80%)" : "#181818",
+          color: "#fff",
+          border: isHovered ? "1px solid rgba(64,169,255,0.45)" : "1px solid #e0e3e9",
+          zIndex: 1,
+          transition: "all 0.35s ease",
+          transform: isHovered ? "translateY(-6px) scale(1.01)" : "translateY(0) scale(1)",
+          backdropFilter: "blur(2px)",
+        }}
+      >
+        <AnimatedAuthTitle text="Login" style={{ textAlign: "center", marginBottom: 24 }} />
+
+        <div style={{ display: "flex", justifyContent: "center", gap: 16, marginBottom: 24 }}>
+          <label>
+            <input
+              type="radio"
+              className="register-dark-radio"
+              name="userType"
+              value="iiest"
+              checked={userType === "iiest"}
+              onChange={() => setUserType("iiest")}
+            />
+            IIEST Member
+          </label>
+          <label>
+            <input
+              type="radio"
+              className="register-dark-radio"
+              name="userType"
+              value="non-iiest"
+              checked={userType === "non-iiest"}
+              onChange={() => setUserType("non-iiest")}
+            />
+            Non-IIEST Guest
+          </label>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <style>{`
+            .register-dark-input {
+              background: #232323;
+              color: #fff;
+              border: 1px solid #444;
+              border-radius: 4px;
+              width: 100%;
+              padding: 12px;
+              box-sizing: border-box;
+            }
+            .register-dark-input::placeholder {
+              color: #aaa;
+            }
+            .register-dark-radio {
+              accent-color: #1976d2;
+            }
+            .register-dark-btn {
+              background: #1976d2;
+              color: #fff;
+              border: none;
+              border-radius: 4px;
+              font-weight: 600;
+              transition: background 0.2s;
+              width: 100%;
+              padding: 12px;
+            }
+            .register-dark-btn:hover {
+              background: #1253a2;
+            }
+          `}</style>
+
+          {userType === "iiest" ? (
+            <>
+              <input
+                name="roll"
+                placeholder="Roll Number"
+                value={iiestCredentials.roll}
+                onChange={event => handleChange(event, "iiest")}
+                required
+                className="register-dark-input"
+                style={{ marginBottom: 12 }}
+              />
+              <input
+                name="password"
+                type="password"
+                placeholder="Password"
+                value={iiestCredentials.password}
+                onChange={event => handleChange(event, "iiest")}
+                required
+                className="register-dark-input"
+                style={{ marginBottom: 16 }}
+              />
+            </>
+          ) : (
+            <>
+              <input
+                name="email"
+                type="email"
+                placeholder="Email"
+                value={nonIIESTCredentials.email}
+                onChange={event => handleChange(event, "non-iiest")}
+                required
+                className="register-dark-input"
+                style={{ marginBottom: 12 }}
+              />
+              <input
+                name="password"
+                type="password"
+                placeholder="Password"
+                value={nonIIESTCredentials.password}
+                onChange={event => handleChange(event, "non-iiest")}
+                required
+                className="register-dark-input"
+                style={{ marginBottom: 16 }}
+              />
+            </>
+          )}
+
+          <button type="submit" className="register-dark-btn">
+            Sign In
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 }

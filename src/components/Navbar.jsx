@@ -24,7 +24,7 @@ export default function Navbar() {
       <Link
         to="/"
         className="text-3xl font-extrabold tracking-widest"
-        style={{ color: "#40a9ff", letterSpacing: 2, fontFamily: 'Montserrat, sans-serif', textShadow: '0 2px 8px rgba(64,169,255,0.15)' }}
+        style={{ color: "#40a9ff", letterSpacing: 10, fontFamily: 'Montserrat, sans-serif', textShadow: '0 2px 8px rgba(64,169,255,0.15)' }}
       >
         REBECA
       </Link>
@@ -47,8 +47,7 @@ export default function Navbar() {
             style={{
               background: "linear-gradient(90deg, #1976d2 0%, #40a9ff 100%)",
               color: "#fff",
-              boxShadow: "0 2px 8px rgba(25,118,210,0.2)",
-              transition: "background 0.2s"
+              boxShadow: "0 2px 8px rgba(25,118,210,0.2)"
             }}
             onMouseOver={e => (e.target.style.background = "#1253a2")}
             onMouseOut={e => (e.target.style.background = "linear-gradient(90deg, #1976d2 0%, #40a9ff 100%)")}
@@ -72,8 +71,7 @@ export default function Navbar() {
               style={{
                 background: "linear-gradient(90deg, #1976d2 0%, #40a9ff 100%)",
                 color: "#fff",
-                boxShadow: "0 2px 8px rgba(25,118,210,0.2)",
-                transition: "background 0.2s"
+                boxShadow: "0 2px 8px rgba(25,118,210,0.2)"
               }}
               onMouseOver={e => (e.target.style.background = "#1253a2")}
               onMouseOut={e => (e.target.style.background = "linear-gradient(90deg, #1976d2 0%, #40a9ff 100%)")}
