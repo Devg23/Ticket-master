@@ -1,5 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 const events = [
   {
+    slug: "battle-of-the-bands",
     name: "Battle of the Bands",
     date: "February 21, 2025",
     prize: "₹50,000 + Studio Recording Session",
@@ -9,6 +12,7 @@ const events = [
       "Rock out under the stars as campus bands go head-to-head for the ultimate REBECA crown.",
   },
   {
+    slug: "street-football-showdown",
     name: "Street Football Showdown",
     date: "February 22, 2025",
     prize: "₹25,000 + Nike Gear",
@@ -18,6 +22,7 @@ const events = [
       "Fast-paced futsal action with alumni and students teaming up for high-energy matches.",
   },
   {
+    slug: "mystic-quiz-night",
     name: "Mystic Quiz Night",
     date: "February 23, 2025",
     prize: "₹15,000 + Exclusive Merchandise",
@@ -27,6 +32,7 @@ const events = [
       "Brain-tickling trivia spanning pop culture, campus legends, and REBECA history.",
   },
   {
+    slug: "heritage-theatre-gala",
     name: "Heritage Theatre Gala",
     date: "February 24, 2025",
     prize: "₹40,000 + Spotlight Trophy",
@@ -38,6 +44,8 @@ const events = [
 ];
 
 export default function Events() {
+  const navigate = useNavigate();
+
   return (
     <div className="events-page">
       <div className="events-wrapper">
@@ -63,7 +71,11 @@ export default function Events() {
                   <span className="event-card-date">{event.date}</span>
                   <span className="event-card-prize">{event.prize}</span>
                 </div>
-                <button className="event-card-cta" type="button">
+                <button
+                  className="event-card-cta"
+                  type="button"
+                  onClick={() => navigate(`/events/${event.slug}`)}
+                >
                   View Details
                 </button>
               </div>
