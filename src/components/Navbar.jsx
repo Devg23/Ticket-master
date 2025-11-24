@@ -16,8 +16,8 @@ export default function Navbar() {
         width: "100%",
         zIndex: 1000,
         borderBottom: "1px solid #222",
-        minHeight: 64,
-        height: 64,
+        minHeight: 24,
+        height: 24,
         boxSizing: "border-box",
       }}
       className="w-full flex justify-between items-center relative"
@@ -34,9 +34,8 @@ export default function Navbar() {
             textShadow: "0 2px 8px rgba(64,169,255,0.15)",
           }}
         >
-          <FaHome size={50} />
+          <FaHome size={20} />
         </Link>
-      </nav>
 
       {/* CENTER SECTION — Events */}
       <Link
@@ -65,27 +64,26 @@ export default function Navbar() {
               "linear-gradient(90deg, #1976d2 0%, #40a9ff 100%)")
           }
         >
-          Dashboard
+           Dashboard
         </Link>
       ) : (
         <>
           <Link
             to="/login"
             className="text-lg font-medium transition-colors duration-200"
-            style={{ color: "#fff" }}
+            style={{ color: "#fff",  marginLeft: "auto"  }}
             onMouseOver={(e) => (e.target.style.color = "#40a9ff")}
             onMouseOut={(e) => (e.target.style.color = "#fff")}
           >
-            Login
+             | Login |
           </Link>
 
           <Link
             to="/register"
             className="px-5 py-2 rounded-full font-semibold shadow-lg ml-2"
             style={{
-              background: "linear-gradient(90deg, #1976d2 0%, #40a9ff 100%)",
               color: "#fff",
-              boxShadow: "0 2px 8px rgba(25,118,210,0.2)",
+              marginLeft: "auto" 
             }}
             onMouseOver={(e) => (e.target.style.background = "#1253a2")}
             onMouseOut={(e) =>
@@ -93,10 +91,11 @@ export default function Navbar() {
                 "linear-gradient(90deg, #1976d2 0%, #40a9ff 100%)")
             }
           >
-            Register
+             Register
           </Link>
         </>
       )}
+      </nav>
     </header>
   );
 }
