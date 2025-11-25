@@ -2,6 +2,7 @@ import { useState } from "react";
 import AnimatedAuthTitle from "../../components/AnimatedAuthTitle";
 
 export default function Login() {
+  const [mode, setMode] = useState("user");
   const [userType, setUserType] = useState("iiest");
   const [iiestCredentials, setIIESTCredentials] = useState({
     roll: "",
@@ -11,20 +12,28 @@ export default function Login() {
     email: "",
     password: "",
   });
+  const [adminCredentials, setAdminCredentials] = useState({
+    username: "",
+    password: "",
+  });
   const [isHovered, setIsHovered] = useState(false);
 
   const handleChange = (event, type) => {
     const { name, value } = event.target;
     if (type === "iiest") {
       setIIESTCredentials(prev => ({ ...prev, [name]: value }));
-    } else {
+    } else if (type === "non-iiest") {
       setNonIIESTCredentials(prev => ({ ...prev, [name]: value }));
+    } else {
+      setAdminCredentials(prev => ({ ...prev, [name]: value }));
     }
   };
 
   const handleSubmit = event => {
     event.preventDefault();
-    if (userType === "iiest") {
+    if (mode === "admin") {
+      alert("Admin Login: " + JSON.stringify(adminCredentials, null, 2));
+    } else if (userType === "iiest") {
       alert("IIEST Login: " + JSON.stringify(iiestCredentials, null, 2));
     } else {
       alert("Non-IIEST Login: " + JSON.stringify(nonIIESTCredentials, null, 2));
@@ -62,30 +71,32 @@ export default function Login() {
       >
         <AnimatedAuthTitle text="Login" style={{ textAlign: "center", marginBottom: 24 }} />
 
-        <div style={{ display: "flex", justifyContent: "center", gap: 16, marginBottom: 24 }}>
-          <label>
-            <input
-              type="radio"
-              className="register-dark-radio"
-              name="userType"
-              value="iiest"
-              checked={userType === "iiest"}
-              onChange={() => setUserType("iiest")}
-            />
-            IIEST Member
-          </label>
-          <label>
-            <input
-              type="radio"
-              className="register-dark-radio"
-              name="userType"
-              value="non-iiest"
-              checked={userType === "non-iiest"}
-              onChange={() => setUserType("non-iiest")}
-            />
-            Non-IIEST Guest
-          </label>
-        </div>
+        {mode !== "admin" && (
+          <div style={{ display: "flex", justifyContent: "center", gap: 16, marginBottom: 24 }}>
+            <label>
+              <input
+                type="radio"
+                className="register-dark-radio"
+                name="userType"
+                value="iiest"
+                checked={userType === "iiest"}
+                onChange={() => setUserType("iiest")}
+              />
+              IIEST Member
+            </label>
+            <label>
+              <input
+                type="radio"
+                className="register-dark-radio"
+                name="userType"
+                value="non-iiest"
+                checked={userType === "non-iiest"}
+                onChange={() => setUserType("non-iiest")}
+              />
+              Non-IIEST Guest
+            </label>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <style>{`
@@ -119,7 +130,29 @@ export default function Login() {
             }
           `}</style>
 
-          {userType === "iiest" ? (
+          {mode === "admin" ? (
+            <>
+              <input
+                name="username"
+                placeholder="Admin Username"
+                value={adminCredentials.username}
+                onChange={event => handleChange(event, "admin")}
+                required
+                className="register-dark-input"
+                style={{ marginBottom: 12 }}
+              />
+              <input
+                name="password"
+                type="password"
+                placeholder="Admin Password"
+                value={adminCredentials.password}
+                onChange={event => handleChange(event, "admin")}
+                required
+                className="register-dark-input"
+                style={{ marginBottom: 16 }}
+              />
+            </>
+          ) : userType === "iiest" ? (
             <>
               <input
                 name="roll"
@@ -166,8 +199,24 @@ export default function Login() {
             </>
           )}
 
-          <button type="submit" className="register-dark-btn">
+          <button type="submit" className="register-dark-btn" style={{ marginBottom: 12 }}>
             Sign In
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode(prev => (prev === "admin" ? "user" : "admin"))}
+            style={{
+              width: "100%",
+              background: "transparent",
+              color: "#40a9ff",
+              border: "none",
+              fontWeight: 600,
+              cursor: "pointer",
+              textDecoration: "underline",
+              letterSpacing: 0.3,
+            }}
+          >
+            {mode === "admin" ? "Back to User Login" : "Login as Admin"}
           </button>
         </form>
       </div>
