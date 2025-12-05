@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function Dashboard() {
   const tabs = [
@@ -10,6 +12,35 @@ export default function Dashboard() {
   ];
 
   const [activeTab, setActiveTab] = useState(tabs[0].id);
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem("user");
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Please log in to view the dashboard.");
+      navigate("/login");
+      return;
+    }
+
+    if (!user) {
+      try {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
+      } catch {
+        localStorage.removeItem("user");
+      }
+    }
+  }, [navigate, user]);
 
   const styles = {
     page: {
@@ -410,7 +441,7 @@ export default function Dashboard() {
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
               <span style={styles.subtleText}>Email</span>
-              <p style={{ margin: "6px 0 0", fontWeight: 600 }}>alex.morgan@example.com</p>
+              <p style={{ margin: "6px 0 0", fontWeight: 600 }}>{user?.email ?? "Not provided"}</p>
             </div>
             <div>
               <span style={styles.subtleText}>Phone</span>
@@ -464,7 +495,7 @@ export default function Dashboard() {
         <aside style={styles.sidebar}>
           <div>
             <span style={{ ...styles.subtleText, textTransform: "uppercase", letterSpacing: "0.4px" }}>Dashboard</span>
-            <h1 style={{ margin: "12px 0 0", fontSize: "1.65rem", letterSpacing: "0.38px" }}>Welcome back, Alex!</h1>
+            <h1 style={{ margin: "12px 0 0", fontSize: "1.65rem", letterSpacing: "0.38px" }}>Welcome back, {user?.name ?? "Explorer"}!</h1>
           </div>
           <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
             {tabs.map(tab => (

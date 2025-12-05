@@ -1,5 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import AnimatedAuthTitle from "../../components/AnimatedAuthTitle";
+import api, { setAuthHeader } from "../../services/api";
 
 export default function Login() {
   const [mode, setMode] = useState("user");
@@ -17,6 +20,8 @@ export default function Login() {
     password: "",
   });
   const [isHovered, setIsHovered] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (event, type) => {
     const { name, value } = event.target;
@@ -29,14 +34,51 @@ export default function Login() {
     }
   };
 
-  const handleSubmit = event => {
+  const emitAuthChange = () => {
+    window.dispatchEvent(new Event("authchange"));
+  };
+
+  const handleSubmit = async event => {
     event.preventDefault();
+    let payload;
+
     if (mode === "admin") {
-      alert("Admin Login: " + JSON.stringify(adminCredentials, null, 2));
+      payload = {
+        email: adminCredentials.username,
+        password: adminCredentials.password,
+      };
     } else if (userType === "iiest") {
-      alert("IIEST Login: " + JSON.stringify(iiestCredentials, null, 2));
+      payload = {
+        roll: iiestCredentials.roll,
+        password: iiestCredentials.password,
+      };
     } else {
-      alert("Non-IIEST Login: " + JSON.stringify(nonIIESTCredentials, null, 2));
+      payload = {
+        email: nonIIESTCredentials.email,
+        password: nonIIESTCredentials.password,
+      };
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { data } = await api.post("/auth/login", payload);
+      const { accessToken, user } = data;
+
+      if (!accessToken || !user) {
+        throw new Error("Invalid response from server");
+      }
+
+      setAuthHeader(accessToken);
+      localStorage.setItem("user", JSON.stringify(user));
+      toast.success(`Welcome back${user?.name ? `, ${user.name.split(" ")[0]}` : ""}!`);
+      emitAuthChange();
+      navigate("/welcome", { state: { name: user?.name } });
+    } catch (error) {
+      const message =
+        error.response?.data?.message || "Unable to log in. Please check your credentials.";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -199,8 +241,13 @@ export default function Login() {
             </>
           )}
 
-          <button type="submit" className="register-dark-btn" style={{ marginBottom: 12 }}>
-            Sign In
+          <button
+            type="submit"
+            className="register-dark-btn"
+            style={{ marginBottom: 12, opacity: isSubmitting ? 0.75 : 1 }}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Signing In..." : "Sign In"}
           </button>
           <button
             type="button"

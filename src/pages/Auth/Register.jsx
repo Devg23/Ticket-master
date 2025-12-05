@@ -1,5 +1,8 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import AnimatedAuthTitle from "../../components/AnimatedAuthTitle";
+import api from "../../services/api";
 
 export default function Register() {
   const [userType, setUserType] = useState("iiestian");
@@ -19,6 +22,8 @@ export default function Register() {
   const [showOtpStep, setShowOtpStep] = useState(false);
   const [otp, setOtp] = useState("");
   const [isHovered, setIsHovered] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e, formType) => {
     const { name, value } = e.target;
@@ -29,9 +34,37 @@ export default function Register() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowOtpStep(true);
+    if (isSubmitting) return;
+
+    const payload =
+      userType === "iiestian"
+        ? {
+            name: iiestianForm.name,
+            email: iiestianForm.email,
+            roll: iiestianForm.roll,
+            password: iiestianForm.password,
+          }
+        : {
+            name: nonIIESTianForm.name,
+            email: nonIIESTianForm.email,
+            college: nonIIESTianForm.college,
+            password: nonIIESTianForm.password,
+          };
+
+    setIsSubmitting(true);
+    try {
+      await api.post("/auth/signup", payload);
+      toast.success("Registration successful! Please log in.");
+      resetForms();
+      navigate("/login");
+    } catch (error) {
+      const message = error.response?.data?.message || "Registration failed. Please try again.";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleOtpSubmit = (e) => {
@@ -50,6 +83,26 @@ export default function Register() {
       email: "",
       roll: "",
       // department: "",
+      password: "",
+      confirm_password: "",
+    });
+    setNonIIESTianForm({
+      name: "",
+      email: "",
+      college: "",
+      password: "",
+      confirm_password: "",
+    });
+  };
+
+  const resetForms = () => {
+    setUserType("iiestian");
+    setShowOtpStep(false);
+    setOtp("");
+    setIIESTianForm({
+      name: "",
+      email: "",
+      roll: "",
       password: "",
       confirm_password: "",
     });
@@ -249,8 +302,8 @@ export default function Register() {
                   />
                 </>
               )}
-              <button type="submit" className="register-dark-btn">
-                Continue
+              <button type="submit" className="register-dark-btn" disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Continue"}
               </button>
             </form>
           </>
