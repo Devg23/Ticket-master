@@ -120,6 +120,28 @@ export default function Navbar() {
       {/* RIGHT SECTION — Login/Register/Dashboard */}
       {token ? (
         <div style={{ display: "flex", gap: 12, marginLeft: "auto", alignItems: "center" }}>
+          <Link
+            to="/admin"
+            className="text-sm font-semibold"
+            style={{
+              color: "#fff",
+              border: "1px solid rgba(255,255,255,0.3)",
+              borderRadius: 999,
+              padding: "8px 16px",
+              letterSpacing: 0.4,
+              transition: "all 0.2s ease",
+            }}
+            onMouseOver={event => {
+              event.currentTarget.style.color = "#40a9ff";
+              event.currentTarget.style.borderColor = "#40a9ff";
+            }}
+            onMouseOut={event => {
+              event.currentTarget.style.color = "#fff";
+              event.currentTarget.style.borderColor = "rgba(255,255,255,0.3)";
+            }}
+          >
+            Admin Portal
+          </Link>
           <button
             type="button"
             onClick={() => navigate("/dashboard")}
@@ -160,6 +182,15 @@ export default function Navbar() {
         </div>
       ) : (
         <div style={{ display: "flex", gap: 12, marginLeft: "auto", alignItems: "center" }}>
+          <Link
+            to="/admin"
+            className="text-lg font-medium transition-colors duration-200"
+            style={{ color: "#fff" }}
+            onMouseOver={e => (e.target.style.color = "#40a9ff")}
+            onMouseOut={e => (e.target.style.color = "#fff")}
+          >
+            Admin
+          </Link>
           <Link
             to="/login"
             className="text-lg font-medium transition-colors duration-200"

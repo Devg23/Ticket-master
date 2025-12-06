@@ -1,10 +1,11 @@
-﻿import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Home from "../pages/Home/Home";
 import Events from "../pages/Events/Events";
 import Eventdetail from "../pages/Events/Eventdetail";
 import Login from "../pages/Auth/Login";
 import Register from "../pages/Auth/Register";
 import Dashboard from "../pages/Dashboard/Dashboard";
+import Admin from "../pages/Admin/Admin";
 import WelcomeAnimation from "../pages/Welcome/WelcomeAnimation";
 import Navbar from "../components/Navbar";
 
@@ -23,6 +24,7 @@ function RouterContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="/welcome" element={<WelcomeAnimation />} />
       </Routes>
     </>
