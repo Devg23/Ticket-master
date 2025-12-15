@@ -17,6 +17,8 @@ app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
 }));
+app.use("/api/auth",authRouter);
+
 
 app.listen(PORT,()=>{
     connectDB();
@@ -24,7 +26,6 @@ app.listen(PORT,()=>{
 });
 
 
-app.use("/api/auth",authRouter);
 
 
 

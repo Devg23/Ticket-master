@@ -1,7 +1,15 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import AnimatedAuthTitle from "../../components/AnimatedAuthTitle";
+import axios from "axios";
+import { AuthContext } from "../../context/Authcontext";
+import { useNavigate } from "react-router-dom";
+
+const BACKEND_URL="http://localhost:5000"
 
 export default function Login() {
+  const {setUser}=useContext(AuthContext);
+  const navigate=useNavigate();
+
   const [mode, setMode] = useState("user");
   const [userType, setUserType] = useState("iiest");
   const [iiestCredentials, setIIESTCredentials] = useState({
@@ -28,16 +36,44 @@ export default function Login() {
       setAdminCredentials(prev => ({ ...prev, [name]: value }));
     }
   };
+  const handleRollChange = (event, type) => {
+    const { name, value } = event.target;
+    const filteredValue = value
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
 
-  const handleSubmit = event => {
-    event.preventDefault();
-    if (mode === "admin") {
-      alert("Admin Login: " + JSON.stringify(adminCredentials, null, 2));
-    } else if (userType === "iiest") {
-      alert("IIEST Login: " + JSON.stringify(iiestCredentials, null, 2));
+
+    if (type === "iiest") {
+      setIIESTCredentials(prev => ({ ...prev, [name]: filteredValue }));
+    } else if (type === "non-iiest") {
+      setNonIIESTCredentials(prev => ({ ...prev, [name]: filteredValue }));
     } else {
-      alert("Non-IIEST Login: " + JSON.stringify(nonIIESTCredentials, null, 2));
+      setAdminCredentials(prev => ({ ...prev, [name]: filteredValue }));
     }
+  };
+
+
+  const handleSubmit = async event => {
+    event.preventDefault();
+    try {
+      let response;
+        if (mode === "admin") {
+          alert("Admin Login: " + JSON.stringify(adminCredentials, null, 2));
+          response=await axios.post(`${BACKEND_URL}/api/auth/login`,adminCredentials);
+        } else if (userType === "iiest") {
+          alert("IIEST Login: " + JSON.stringify(iiestCredentials, null, 2));
+          response=await axios.post(`${BACKEND_URL}/api/auth/login`,iiestCredentials);
+        } else {
+          alert("Non-IIEST Login: " + JSON.stringify(nonIIESTCredentials, null, 2));
+          response=await axios.post(`${BACKEND_URL}/api/auth/login`,nonIIESTCredentials);
+        }
+        console.log(response);
+        setUser(response.data.user.name);
+        navigate("/dashboard");
+    } catch (error) {
+      console.error(error);
+    }
+    
   };
 
   return (
@@ -158,7 +194,7 @@ export default function Login() {
                 name="roll"
                 placeholder="Roll Number"
                 value={iiestCredentials.roll}
-                onChange={event => handleChange(event, "iiest")}
+                onChange={event => handleRollChange(event, "iiest")}
                 required
                 className="register-dark-input"
                 style={{ marginBottom: 12 }}

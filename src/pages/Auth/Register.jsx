@@ -1,7 +1,16 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import AnimatedAuthTitle from "../../components/AnimatedAuthTitle";
+import axios from "axios";
+import { AuthContext } from "../../context/Authcontext";
+import { useNavigate } from "react-router-dom";
+
+const BACKEND_URL="http://localhost:5000"
 
 export default function Register() {
+  const {setUser}=useContext(AuthContext);
+  const navigate=useNavigate();
+
+
   const [userType, setUserType] = useState("iiestian");
   const [iiestianForm, setIIESTianForm] = useState({
     name: "",
@@ -28,6 +37,18 @@ export default function Register() {
       setNonIIESTianForm((prev) => ({ ...prev, [name]: value }));
     }
   };
+  const handleRollChange = (e, formType) => {
+    const { name, value } = e.target;
+    const filteredValue = value
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
+
+    if (formType === "iiestian") {
+      setIIESTianForm((prev) => ({ ...prev, [name]: filteredValue }));
+    } else {
+      setNonIIESTianForm((prev) => ({ ...prev, [name]: filteredValue }));
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -40,8 +61,9 @@ export default function Register() {
       alert("Please enter the OTP sent to your email.");
       return;
     }
-
+    signup();
     alert("Thank you for registering!");
+    navigate("/login");
     setOtp("");
     setShowOtpStep(false);
     setUserType("iiestian");
@@ -61,6 +83,21 @@ export default function Register() {
       confirm_password: "",
     });
   };
+
+  const signup= async ()=>{
+    try {
+      let response;
+      if (userType === "iiestian") {
+        response=await axios.post(`${BACKEND_URL}/api/auth/signup`,iiestianForm);
+      } else {
+        response=await axios.post(`${BACKEND_URL}/api/auth/signup`,nonIIESTianForm);
+      }
+      console.log(response);
+      // setUser(response.data.name);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <div style={{
@@ -171,7 +208,7 @@ export default function Register() {
                     name="roll"
                     placeholder="Roll Number"
                     value={iiestianForm.roll}
-                    onChange={(e) => handleChange(e, "iiestian")}
+                    onChange={(e) => handleRollChange(e, "iiestian")}
                     required
                     className="register-dark-input" style={{ marginBottom: 12 }}
                   />
