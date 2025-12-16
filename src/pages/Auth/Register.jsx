@@ -1,10 +1,5 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import AnimatedAuthTitle from "../../components/AnimatedAuthTitle";
-import axios from "axios";
-import { AuthContext } from "../../context/Authcontext";
-import { useNavigate } from "react-router-dom";
-
-const BACKEND_URL="http://localhost:5000"
 
 export default function Register() {
   const {setUser}=useContext(AuthContext);
@@ -28,6 +23,8 @@ export default function Register() {
   const [showOtpStep, setShowOtpStep] = useState(false);
   const [otp, setOtp] = useState("");
   const [isHovered, setIsHovered] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e, formType) => {
     const { name, value } = e.target;
@@ -50,9 +47,37 @@ export default function Register() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowOtpStep(true);
+    if (isSubmitting) return;
+
+    const payload =
+      userType === "iiestian"
+        ? {
+            name: iiestianForm.name,
+            email: iiestianForm.email,
+            roll: iiestianForm.roll,
+            password: iiestianForm.password,
+          }
+        : {
+            name: nonIIESTianForm.name,
+            email: nonIIESTianForm.email,
+            college: nonIIESTianForm.college,
+            password: nonIIESTianForm.password,
+          };
+
+    setIsSubmitting(true);
+    try {
+      await api.post("/auth/signup", payload);
+      toast.success("Registration successful! Please log in.");
+      resetForms();
+      navigate("/login");
+    } catch (error) {
+      const message = error.response?.data?.message || "Registration failed. Please try again.";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleOtpSubmit = (e) => {
@@ -83,21 +108,6 @@ export default function Register() {
       confirm_password: "",
     });
   };
-
-  const signup= async ()=>{
-    try {
-      let response;
-      if (userType === "iiestian") {
-        response=await axios.post(`${BACKEND_URL}/api/auth/signup`,iiestianForm);
-      } else {
-        response=await axios.post(`${BACKEND_URL}/api/auth/signup`,nonIIESTianForm);
-      }
-      console.log(response);
-      // setUser(response.data.name);
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
   return (
     <div style={{
@@ -286,8 +296,8 @@ export default function Register() {
                   />
                 </>
               )}
-              <button type="submit" className="register-dark-btn">
-                Continue
+              <button type="submit" className="register-dark-btn" disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Continue"}
               </button>
             </form>
           </>

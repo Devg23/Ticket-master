@@ -1,10 +1,5 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import AnimatedAuthTitle from "../../components/AnimatedAuthTitle";
-import axios from "axios";
-import { AuthContext } from "../../context/Authcontext";
-import { useNavigate } from "react-router-dom";
-
-const BACKEND_URL="http://localhost:5000"
 
 export default function Login() {
   const {setUser}=useContext(AuthContext);
@@ -25,6 +20,8 @@ export default function Login() {
     password: "",
   });
   const [isHovered, setIsHovered] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (event, type) => {
     const { name, value } = event.target;
@@ -53,25 +50,14 @@ export default function Login() {
   };
 
 
-  const handleSubmit = async event => {
+  const handleSubmit = event => {
     event.preventDefault();
-    try {
-      let response;
-        if (mode === "admin") {
-          alert("Admin Login: " + JSON.stringify(adminCredentials, null, 2));
-          response=await axios.post(`${BACKEND_URL}/api/auth/login`,adminCredentials);
-        } else if (userType === "iiest") {
-          alert("IIEST Login: " + JSON.stringify(iiestCredentials, null, 2));
-          response=await axios.post(`${BACKEND_URL}/api/auth/login`,iiestCredentials);
-        } else {
-          alert("Non-IIEST Login: " + JSON.stringify(nonIIESTCredentials, null, 2));
-          response=await axios.post(`${BACKEND_URL}/api/auth/login`,nonIIESTCredentials);
-        }
-        console.log(response);
-        setUser(response.data.user.name);
-        navigate("/dashboard");
-    } catch (error) {
-      console.error(error);
+    if (mode === "admin") {
+      alert("Admin Login: " + JSON.stringify(adminCredentials, null, 2));
+    } else if (userType === "iiest") {
+      alert("IIEST Login: " + JSON.stringify(iiestCredentials, null, 2));
+    } else {
+      alert("Non-IIEST Login: " + JSON.stringify(nonIIESTCredentials, null, 2));
     }
     
   };
@@ -235,8 +221,13 @@ export default function Login() {
             </>
           )}
 
-          <button type="submit" className="register-dark-btn" style={{ marginBottom: 12 }}>
-            Sign In
+          <button
+            type="submit"
+            className="register-dark-btn"
+            style={{ marginBottom: 12, opacity: isSubmitting ? 0.75 : 1 }}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Signing In..." : "Sign In"}
           </button>
           <button
             type="button"
