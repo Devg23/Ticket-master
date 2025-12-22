@@ -16,6 +16,7 @@ export default function WelcomeAnimation() {
   }, []);
 
   const displayName = location.state?.name || storedUser?.name || "Explorer";
+  const redirectPath = typeof location.state?.redirectPath === "string" ? location.state.redirectPath : "/dashboard";
 
   const words = useMemo(() => {
     const phrase = `Welcome to Rebecca ${displayName}`.trim();
@@ -24,11 +25,11 @@ export default function WelcomeAnimation() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigate("/dashboard", { replace: true });
+      navigate(redirectPath, { replace: true });
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, [navigate, redirectPath]);
 
   const pageStyle = {
     minHeight: "100vh",

@@ -1,30 +1,38 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import AnimatedAuthTitle from "../../components/AnimatedAuthTitle";
+import { AuthContext } from "../../context/Authcontext";
+import api from "../../services/api";
 
 export default function Login() {
-  const {setUser}=useContext(AuthContext);
-  const navigate=useNavigate();
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [mode, setMode] = useState("user");
   const [userType, setUserType] = useState("iiest");
+
   const [iiestCredentials, setIIESTCredentials] = useState({
     roll: "",
     password: "",
   });
+
   const [nonIIESTCredentials, setNonIIESTCredentials] = useState({
     email: "",
     password: "",
   });
+
   const [adminCredentials, setAdminCredentials] = useState({
-    username: "",
+    email: "",
     password: "",
   });
+
   const [isHovered, setIsHovered] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
 
   const handleChange = (event, type) => {
     const { name, value } = event.target;
+
     if (type === "iiest") {
       setIIESTCredentials(prev => ({ ...prev, [name]: value }));
     } else if (type === "non-iiest") {
@@ -33,12 +41,10 @@ export default function Login() {
       setAdminCredentials(prev => ({ ...prev, [name]: value }));
     }
   };
+
   const handleRollChange = (event, type) => {
     const { name, value } = event.target;
-    const filteredValue = value
-      .toUpperCase()
-      .replace(/[^A-Z0-9]/g, "");
-
+    const filteredValue = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
 
     if (type === "iiest") {
       setIIESTCredentials(prev => ({ ...prev, [name]: filteredValue }));
@@ -49,17 +55,73 @@ export default function Login() {
     }
   };
 
-
-  const handleSubmit = event => {
-    event.preventDefault();
+  const buildPayload = () => {
     if (mode === "admin") {
-      alert("Admin Login: " + JSON.stringify(adminCredentials, null, 2));
-    } else if (userType === "iiest") {
-      alert("IIEST Login: " + JSON.stringify(iiestCredentials, null, 2));
-    } else {
-      alert("Non-IIEST Login: " + JSON.stringify(nonIIESTCredentials, null, 2));
+      return {
+        email: adminCredentials.email.trim().toLowerCase(),
+        password: adminCredentials.password,
+      };
     }
-    
+
+    if (userType === "iiest") {
+      return {
+        roll: iiestCredentials.roll.trim().toUpperCase(),
+        password: iiestCredentials.password,
+      };
+    }
+
+    return {
+      email: nonIIESTCredentials.email.trim().toLowerCase(),
+      password: nonIIESTCredentials.password,
+    };
+  };
+
+  const handleSubmit = async event => {
+    event.preventDefault();
+    if (isSubmitting) return;
+
+    const payload = buildPayload();
+
+    if (!(payload.email || payload.roll)) {
+      toast.error("Please provide your login identifier.");
+      return;
+    }
+
+    if (!payload.password?.trim()) {
+      toast.error("Password is required.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { data } = await api.post("/auth/login", payload);
+      const { accessToken, user } = data ?? {};
+
+      if (!accessToken || !user) {
+        throw new Error("Unexpected login response from server.");
+      }
+
+      login(user, accessToken);
+
+      toast.success(`Welcome back${user?.name ? ", " + user.name.split(" ")[0] : ""}!`);
+
+      const redirectPath = user.role === "admin" || mode === "admin" ? "/admin" : "/dashboard";
+
+      navigate("/welcome", {
+        replace: true,
+        state: {
+          name: user?.name,
+          redirectPath,
+        },
+      });
+    } catch (error) {
+      const message =
+        error.response?.data?.message || error.message || "Unable to log in. Please try again.";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -80,18 +142,28 @@ export default function Login() {
           maxWidth: 400,
           width: "100%",
           padding: 32,
-          boxShadow: isHovered ? "0 12px 42px rgba(25,118,210,0.35)" : "0 4px 24px rgba(0,0,0,0.08)",
+          boxShadow: isHovered
+            ? "0 12px 42px rgba(25,118,210,0.35)"
+            : "0 4px 24px rgba(0,0,0,0.08)",
           borderRadius: 12,
-          background: isHovered ? "linear-gradient(160deg, #1a1f2b 0%, #161616 80%)" : "#181818",
+          background: isHovered
+            ? "linear-gradient(160deg, #1a1f2b 0%, #161616 80%)"
+            : "#181818",
           color: "#fff",
-          border: isHovered ? "1px solid rgba(64,169,255,0.45)" : "1px solid #e0e3e9",
+          border: isHovered
+            ? "1px solid rgba(64,169,255,0.45)"
+            : "1px solid #e0e3e9",
           zIndex: 1,
           transition: "all 0.35s ease",
-          transform: isHovered ? "translateY(-6px) scale(1.01)" : "translateY(0) scale(1)",
-          backdropFilter: "blur(2px)",
+          transform: isHovered
+            ? "translateY(-6px) scale(1.01)"
+            : "translateY(0) scale(1)",
         }}
       >
-        <AnimatedAuthTitle text="Login" style={{ textAlign: "center", marginBottom: 24 }} />
+        <AnimatedAuthTitle
+          text="Login"
+          style={{ textAlign: "center", marginBottom: 24 }}
+        />
 
         {mode !== "admin" && (
           <div style={{ display: "flex", justifyContent: "center", gap: 16, marginBottom: 24 }}>
@@ -99,22 +171,18 @@ export default function Login() {
               <input
                 type="radio"
                 className="register-dark-radio"
-                name="userType"
-                value="iiest"
                 checked={userType === "iiest"}
                 onChange={() => setUserType("iiest")}
-              />
+              />{" "}
               IIEST Member
             </label>
             <label>
               <input
                 type="radio"
                 className="register-dark-radio"
-                name="userType"
-                value="non-iiest"
                 checked={userType === "non-iiest"}
                 onChange={() => setUserType("non-iiest")}
-              />
+              />{" "}
               Non-IIEST Guest
             </label>
           </div>
@@ -129,10 +197,6 @@ export default function Login() {
               border-radius: 4px;
               width: 100%;
               padding: 12px;
-              box-sizing: border-box;
-            }
-            .register-dark-input::placeholder {
-              color: #aaa;
             }
             .register-dark-radio {
               accent-color: #1976d2;
@@ -142,36 +206,32 @@ export default function Login() {
               color: #fff;
               border: none;
               border-radius: 4px;
-              font-weight: 600;
-              transition: background 0.2s;
               width: 100%;
               padding: 12px;
-            }
-            .register-dark-btn:hover {
-              background: #1253a2;
+              font-weight: 600;
             }
           `}</style>
 
           {mode === "admin" ? (
             <>
               <input
-                name="username"
-                placeholder="Admin Username"
-                value={adminCredentials.username}
-                onChange={event => handleChange(event, "admin")}
+                name="email"
+                type="email"
+                placeholder="Admin Email"
+                value={adminCredentials.email}
+                onChange={e => handleChange(e, "admin")}
                 required
                 className="register-dark-input"
-                style={{ marginBottom: 12 }}
               />
               <input
                 name="password"
                 type="password"
                 placeholder="Admin Password"
                 value={adminCredentials.password}
-                onChange={event => handleChange(event, "admin")}
+                onChange={e => handleChange(e, "admin")}
                 required
                 className="register-dark-input"
-                style={{ marginBottom: 16 }}
+                style={{ marginTop: 12 }}
               />
             </>
           ) : userType === "iiest" ? (
@@ -180,20 +240,19 @@ export default function Login() {
                 name="roll"
                 placeholder="Roll Number"
                 value={iiestCredentials.roll}
-                onChange={event => handleRollChange(event, "iiest")}
+                onChange={e => handleRollChange(e, "iiest")}
                 required
                 className="register-dark-input"
-                style={{ marginBottom: 12 }}
               />
               <input
                 name="password"
                 type="password"
                 placeholder="Password"
                 value={iiestCredentials.password}
-                onChange={event => handleChange(event, "iiest")}
+                onChange={e => handleChange(e, "iiest")}
                 required
                 className="register-dark-input"
-                style={{ marginBottom: 16 }}
+                style={{ marginTop: 12 }}
               />
             </>
           ) : (
@@ -203,20 +262,19 @@ export default function Login() {
                 type="email"
                 placeholder="Email"
                 value={nonIIESTCredentials.email}
-                onChange={event => handleChange(event, "non-iiest")}
+                onChange={e => handleChange(e, "non-iiest")}
                 required
                 className="register-dark-input"
-                style={{ marginBottom: 12 }}
               />
               <input
                 name="password"
                 type="password"
                 placeholder="Password"
                 value={nonIIESTCredentials.password}
-                onChange={event => handleChange(event, "non-iiest")}
+                onChange={e => handleChange(e, "non-iiest")}
                 required
                 className="register-dark-input"
-                style={{ marginBottom: 16 }}
+                style={{ marginTop: 12 }}
               />
             </>
           )}
@@ -224,23 +282,23 @@ export default function Login() {
           <button
             type="submit"
             className="register-dark-btn"
-            style={{ marginBottom: 12, opacity: isSubmitting ? 0.75 : 1 }}
             disabled={isSubmitting}
+            style={{ marginTop: 16 }}
           >
             {isSubmitting ? "Signing In..." : "Sign In"}
           </button>
+
           <button
             type="button"
             onClick={() => setMode(prev => (prev === "admin" ? "user" : "admin"))}
             style={{
+              marginTop: 12,
               width: "100%",
               background: "transparent",
-              color: "#40a9ff",
               border: "none",
-              fontWeight: 600,
+              color: "#40a9ff",
               cursor: "pointer",
               textDecoration: "underline",
-              letterSpacing: 0.3,
             }}
           >
             {mode === "admin" ? "Back to User Login" : "Login as Admin"}

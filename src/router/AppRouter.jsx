@@ -5,12 +5,15 @@ import Eventdetail from "../pages/Events/Eventdetail";
 import Login from "../pages/Auth/Login";
 import Register from "../pages/Auth/Register";
 import Dashboard from "../pages/Dashboard/Dashboard";
+import WelcomeAnimation from "../pages/Welcome/WelcomeAnimation";
+import Admin from "../pages/Admin/Admin";
 import Navbar from "../components/Navbar";
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <Navbar />
+
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
@@ -20,16 +23,11 @@ export default function AppRouter() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
+        {/* Protected / Dashboard Route */}
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/welcome" element={<WelcomeAnimation />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
-    </>
-  );
-}
-
-export default function AppRouter() {
-  return (
-    <BrowserRouter>
-      <RouterContent />
     </BrowserRouter>
   );
 }
